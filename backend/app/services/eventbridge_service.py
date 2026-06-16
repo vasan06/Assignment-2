@@ -61,6 +61,9 @@ def estimate_remaining_seconds(
         return None
 
     total_estimated = estimate_processing_seconds(duration_seconds, num_resolutions)
+    # SQLite returns naive datetimes; make it UTC-aware before subtracting
+    if processing_started_at.tzinfo is None:
+        processing_started_at = processing_started_at.replace(tzinfo=timezone.utc)
     elapsed = (datetime.now(timezone.utc) - processing_started_at).total_seconds()
     remaining = int(total_estimated - elapsed)
     return max(0, remaining)
