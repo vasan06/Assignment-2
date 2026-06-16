@@ -10,13 +10,21 @@ on:
 jobs:
   ffmpeg:
     runs-on: ubuntu-latest
+
     concurrency:
       group: video-${{ inputs.video_id }}
       cancel-in-progress: false
-    steps:
-      - uses: actions/checkout@v4
 
-      - uses: actions/setup-python@v5
+    defaults:
+      run:
+        working-directory: backend
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
         with:
           python-version: "3.12"
 
@@ -24,11 +32,12 @@ jobs:
         run: sudo apt-get update && sudo apt-get install -y ffmpeg
 
       - name: Install backend dependencies
-        working-directory: Assignment-2/backend
         run: pip install -r requirements.txt
 
+      - name: Verify backend structure (debug step)
+        run: ls -R
+
       - name: Process renditions
-        working-directory: project/backend
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
